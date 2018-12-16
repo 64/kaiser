@@ -1,13 +1,13 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Sub, AddAssign, SubAssign};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Char {
     c: u8
 }
 
-pub const CHAR_MAX: u8 = 26;
-
 impl Char {
+    pub const MAX: u8 = 26;
+
     pub fn to_upper(self) -> char {
         (self.c as u8 + b'A') as char
     }
@@ -17,12 +17,17 @@ impl Char {
     }
 }
 
-// Modular arithmetic and subtraction
 impl Add<u8> for Char {
     type Output = Char;
 
     fn add(self, other: u8) -> Char {
-        Char { c: (self.c + other) % CHAR_MAX } 
+        Char { c: (self.c + other) % Char::MAX } 
+    }
+}
+
+impl AddAssign<u8> for Char {
+    fn add_assign(&mut self, other: u8) {
+        *self = *self + other; 
     }
 }
 
@@ -31,15 +36,21 @@ impl Sub<u8> for Char {
 
     fn sub(self, other: u8) -> Char {
         let a = self.c as i32 - other as i32;
-        let b = a + (CHAR_MAX as i32 * std::u8::MAX as i32);
-        let c = b % (CHAR_MAX as i32);
+        let b = a + (Char::MAX as i32 * std::u8::MAX as i32);
+        let c = b % (Char::MAX as i32);
         Char { c: c as u8 }
+    }
+}
+
+impl SubAssign<u8> for Char {
+    fn sub_assign(&mut self, other: u8) {
+        *self = *self - other;
     }
 }
 
 impl From<u8> for Char {
     fn from(c: u8) -> Char {
-        debug_assert!(c < CHAR_MAX);
+        debug_assert!(c < Char::MAX);
         Char { c }
     }
 }
@@ -102,12 +113,12 @@ mod tests {
 
         assert_eq!(a, a + 0);
         assert_eq!(a, a - 0);
-        assert_eq!(a, a + CHAR_MAX);
-        assert_eq!(a, a - CHAR_MAX);
+        assert_eq!(a, a + Char::MAX);
+        assert_eq!(a, a - Char::MAX);
         assert_eq!(Char::from(1), a + 1);
         assert_eq!(Char::from(10), a + 10);
         assert_eq!(Char::from(23), a - 3);
-        assert_eq!(Char::from(10), a + CHAR_MAX + 10);
-        assert_eq!(Char::from(16), a - CHAR_MAX - 10);
+        assert_eq!(Char::from(10), a + Char::MAX + 10);
+        assert_eq!(Char::from(16), a - Char::MAX - 10);
     }
 }

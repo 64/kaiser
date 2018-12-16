@@ -4,5 +4,5 @@ extern crate ascii;
 extern crate num;
 
 pub fn main() {
-    kaiser::test();
+
 }
