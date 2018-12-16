@@ -1,15 +1,9 @@
 pub mod buffer;
-pub mod ciphers;
+pub mod char;
 
-pub use self::ciphers::Cipher;
-pub use self::buffer::CharStream;
+pub use self::buffer::Buffer;
+pub use self::char::Char;
 
 pub fn test() {
-    let mut data = CharStream::from("Hello world!");
 
-    let affine = ciphers::Affine::with_params(3, 5);
-    affine.encrypt(&mut data).unwrap();
-    affine.decrypt(&mut data).unwrap();
-
-    println!("{}", data);
 }
