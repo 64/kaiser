@@ -111,6 +111,12 @@ impl From<&str> for Buffer {
     }
 }
 
+impl From<&String> for Buffer {
+    fn from(data: &String) -> Buffer {
+        Buffer::from(&data[..])
+    }
+}
+
 impl<'a> IntoIterator for &'a Buffer {
     type Item = &'a Char;
     type IntoIter = iter::StepBy<iter::Skip<slice::Iter<'a, Char>>>;

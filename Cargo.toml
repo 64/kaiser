@@ -7,5 +7,3 @@ edition = "2018"
 [dependencies]
 clap = "2.32.0"
 simple-error = "0.1.12"
-ascii = "0.9.1"
-num = "0.2.0"
