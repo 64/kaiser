@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub, AddAssign, SubAssign};
+use std::ops::{Add, Sub, AddAssign, SubAssign, Mul, MulAssign};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Char {
@@ -45,6 +45,20 @@ impl Sub<u8> for Char {
 impl SubAssign<u8> for Char {
     fn sub_assign(&mut self, other: u8) {
         *self = *self - other;
+    }
+}
+
+impl Mul<u8> for Char {
+    type Output = Char;
+
+    fn mul(self, other: u8) -> Char {
+        Char { c: (self.c * other) % Char::MAX }
+    }
+}
+
+impl MulAssign<u8> for Char {
+    fn mul_assign(&mut self, other: u8) {
+        *self = *self * other;
     }
 }
 
@@ -120,5 +134,7 @@ mod tests {
         assert_eq!(Char::from(23), a - 3);
         assert_eq!(Char::from(10), a + Char::MAX + 10);
         assert_eq!(Char::from(16), a - Char::MAX - 10);
+        assert_eq!(a, a * 123);
+        assert_eq!(Char { c: 4 }, Char { c: 1 } * 30);
     }
 }

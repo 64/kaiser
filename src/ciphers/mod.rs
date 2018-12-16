@@ -3,6 +3,9 @@ use crate::{Buffer};
 mod caesar;
 pub use self::caesar::Caesar;
 
+mod affine;
+pub use self::affine::Affine;
+
 pub trait Encrypt {
     type Error: std::error::Error;
 

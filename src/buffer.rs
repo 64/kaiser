@@ -104,7 +104,7 @@ impl From<&str> for Buffer {
         let bytes: Vec<Char> = original
             .chars()
             .filter(|c| c.is_alphabetic() && c.is_ascii())
-            .map(|c| Char::from(c))
+            .map(Char::from)
             .collect();
 
         Buffer::new(bytes, original, 1, 0)
