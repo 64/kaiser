@@ -8,3 +8,8 @@ matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
+
+script:
+  - cargo fmt --all -- --check
+  - cargo build
+  - cargo test
