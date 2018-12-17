@@ -1,7 +1,3 @@
-extern crate clap;
-extern crate kaiser;
-extern crate simple_error;
-
 use clap::{App, Arg, SubCommand};
 use std::io::{self, Read};
 
@@ -16,11 +12,12 @@ fn main() {
                 .about("Calculates chi squared statistic against english letter distribution"),
         )
         .subcommand(SubCommand::with_name("freqs").about("Counts letter frequencies"))
+        .subcommand(SubCommand::with_name("quadgrams").about("Generates a quadgram score for the text (higher is better)"))
         .subcommand(
             SubCommand::with_name("trim")
                 .about(
                     "Strips all non-alphabetic characters and converts to uppercase. \
-                     Optionally extracts only the characters at a specified stride and offset.",
+                     Optionally extracts only the characters at a specified stride and offset",
                 )
                 .arg(
                     Arg::with_name("stride")
@@ -34,17 +31,19 @@ fn main() {
                         .takes_value(true)
                         .help("Start taking characters from this offset"),
                 ),
-        )
-        .subcommand(SubCommand::with_name("caesar").about("Caesar cipher"));
+        );
 
     let matches = app.clone().get_matches();
 
     match matches.subcommand() {
         ("ioc", Some(_)) => {
-            println!("{}", kaiser::heuristic::index_of_coincidence(&input()));
+            println!("{}", kaiser::stats::index_of_coincidence(&input()));
         }
         ("chi", Some(_)) => {
-            println!("{}", kaiser::heuristic::chi_squared(&input()));
+            println!("{}", kaiser::stats::chi_squared(&input()));
+        }
+        ("quadgrams", Some(_)) => {
+            println!("{}", kaiser::stats::quadgram_score(&input()));
         }
         ("freqs", Some(_)) => {
             for (i, freq) in input().letter_frequencies().iter().enumerate() {

@@ -2,7 +2,7 @@ use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::{fmt, iter, slice};
 
-use crate::{heuristic, Char, Heuristic};
+use crate::{heuristic, Char};
 
 #[derive(Clone, Debug)]
 pub struct Buffer {
@@ -39,7 +39,7 @@ impl Buffer {
         out
     }
 
-    pub fn score(&self, heur: Heuristic) -> heuristic::HeuristicScore {
+    pub fn score(&self, heur: heuristic::Heuristic) -> heuristic::HeuristicScore {
         heuristic::score(&self, heur)
     }
 

@@ -6,6 +6,9 @@ pub use self::caesar::Caesar;
 mod affine;
 pub use self::affine::Affine;
 
+mod vigenere;
+pub use self::vigenere::Vigenere;
+
 pub trait Encrypt {
     type Error: std::error::Error;
 
