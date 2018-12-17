@@ -1,8 +1,12 @@
 [package]
 name = "kaiser"
 version = "0.1.0"
-authors = ["Matt Taylor <mstaveleytaylor@gmail.com>"]
+authors = ["Matt Taylor"]
 edition = "2018"
+description = "Classical cipher cryptanalysis tool"
+repository = "https://github.com/64/kaiser"
+readme = "README.md"
+license = "GPL-3.0-only"
 
 [dependencies]
 clap = "2.32.0"
