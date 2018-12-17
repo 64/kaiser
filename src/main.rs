@@ -34,10 +34,10 @@ fn main() {
 
     match matches.subcommand() {
         ("ioc", Some(_)) => {
-            println!("{}", input().index_of_coincidence());
+            println!("{}", kaiser::heuristic::index_of_coincidence(&input()));
         },
         ("chi", Some(_)) => {
-            println!("{}", input().chi_squared());
+            println!("{}", kaiser::heuristic::chi_squared(&input()));
         },
         ("freqs", Some(_)) => {
             for (i, freq) in input().letter_frequencies().iter().enumerate() {
