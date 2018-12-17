@@ -1,6 +1,6 @@
 [package]
 name = "kaiser"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Matt Taylor"]
 edition = "2018"
 description = "Classical cipher cryptanalysis tool"

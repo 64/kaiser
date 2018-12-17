@@ -3,9 +3,9 @@ use std::io::{self, Read};
 
 fn main() {
     let mut app = App::new("kaiser")
-        .version("0.1.0")
-        .author("Matt Taylor")
-        .about("Classical cipher cryptanalysis tool")
+        .version(env!("CARGO_PKG_VERSION"))
+        .author(env!("CARGO_PKG_AUTHORS"))
+        .about(env!("CARGO_PKG_DESCRIPTION"))
         .subcommand(SubCommand::with_name("ioc").about("Calculates the index of coincidence"))
         .subcommand(
             SubCommand::with_name("chi")
