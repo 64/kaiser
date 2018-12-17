@@ -1,8 +1,8 @@
-use std::ops::{Add, Sub, AddAssign, SubAssign, Mul, MulAssign};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Char {
-    c: u8
+    c: u8,
 }
 
 impl Char {
@@ -21,13 +21,15 @@ impl Add<u8> for Char {
     type Output = Char;
 
     fn add(self, other: u8) -> Char {
-        Char { c: (self.c + other) % Char::MAX } 
+        Char {
+            c: (self.c + other) % Char::MAX,
+        }
     }
 }
 
 impl AddAssign<u8> for Char {
     fn add_assign(&mut self, other: u8) {
-        *self = *self + other; 
+        *self = *self + other;
     }
 }
 
@@ -52,7 +54,9 @@ impl Mul<u8> for Char {
     type Output = Char;
 
     fn mul(self, other: u8) -> Char {
-        Char { c: (self.c * other) % Char::MAX }
+        Char {
+            c: (self.c * other) % Char::MAX,
+        }
     }
 }
 

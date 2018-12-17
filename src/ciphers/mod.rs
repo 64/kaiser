@@ -1,4 +1,4 @@
-use crate::{Buffer};
+use crate::Buffer;
 
 mod caesar;
 pub use self::caesar::Caesar;

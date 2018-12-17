@@ -1,23 +1,20 @@
-use simple_error::SimpleError;
+use super::{Decrypt, Encrypt};
 use crate::{Buffer, Char};
-use super::{Encrypt, Decrypt};
+use simple_error::SimpleError;
 
 pub struct Affine {
     a: u8,
     b: u8,
-    mmi_a: u8
+    mmi_a: u8,
 }
 
 impl Affine {
     pub fn new(a: u8, b: u8) -> Self {
-        let mmi_a = (0..Char::MAX).find(|&i| (a * i) % Char::MAX == 1)
+        let mmi_a = (0..Char::MAX)
+            .find(|&i| (a * i) % Char::MAX == 1)
             .expect("unable to find modular multiplicative inverse of a");
 
-        Self {
-            a,
-            b,
-            mmi_a
-        }
+        Self { a, b, mmi_a }
     }
 }
 
@@ -57,7 +54,7 @@ mod tests {
 
         affine.encrypt(&mut buf).unwrap();
         assert_eq!("Armmv tvemo!", buf.to_string());
-        
+
         affine.decrypt(&mut buf).unwrap();
         assert_eq!("Hello world!", buf.to_string());
     }

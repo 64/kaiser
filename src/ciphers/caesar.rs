@@ -1,9 +1,9 @@
-use simple_error::SimpleError;
+use super::{Decrypt, Encrypt};
 use crate::Buffer;
-use super::{Encrypt, Decrypt};
+use simple_error::SimpleError;
 
 pub struct Caesar {
-    shift: u8
+    shift: u8,
 }
 
 impl Caesar {
@@ -43,7 +43,7 @@ mod tests {
     #[test]
     fn test_encrypt_decrypt() {
         let caesar = Caesar::new(5);
-        let mut buf = Buffer::from("Hello world!"); 
+        let mut buf = Buffer::from("Hello world!");
 
         caesar.encrypt(&mut buf).unwrap();
         assert_eq!("Mjqqt btwqi!", buf.to_string());

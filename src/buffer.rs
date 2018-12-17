@@ -1,15 +1,15 @@
 use std::num::NonZeroUsize;
-use std::{slice, iter, fmt};
 use std::sync::Arc;
+use std::{fmt, iter, slice};
 
-use crate::{Char, Heuristic, heuristic};
+use crate::{heuristic, Char, Heuristic};
 
 #[derive(Clone, Debug)]
 pub struct Buffer {
     data: Vec<Char>,
     original: Arc<String>,
     stride: NonZeroUsize,
-    offset: usize
+    offset: usize,
 }
 
 impl Buffer {
@@ -26,7 +26,7 @@ impl Buffer {
         let stride = self.stride();
 
         // Take ceiling of integer division: (len - offset) / stride
-        (self.data.len() + stride - self.offset - 1) / stride 
+        (self.data.len() + stride - self.offset - 1) / stride
     }
 
     pub fn letter_frequencies(&self) -> [u32; Char::MAX as usize] {
@@ -66,7 +66,7 @@ impl Buffer {
 
 impl From<&str> for Buffer {
     fn from(data: &str) -> Self {
-        assert!(data.is_ascii()); 
+        assert!(data.is_ascii());
 
         let original = Arc::new(data.to_owned());
 
@@ -91,7 +91,9 @@ impl<'a> IntoIterator for &'a Buffer {
     type IntoIter = iter::StepBy<iter::Skip<slice::Iter<'a, Char>>>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.data.as_slice().iter()
+        self.data
+            .as_slice()
+            .iter()
             .skip(self.offset())
             .step_by(self.stride())
     }
@@ -104,7 +106,9 @@ impl<'a> IntoIterator for &'a mut Buffer {
     fn into_iter(self) -> Self::IntoIter {
         let (offset, stride) = (self.offset(), self.stride());
 
-        self.data.as_mut_slice().iter_mut()
+        self.data
+            .as_mut_slice()
+            .iter_mut()
             .skip(offset)
             .step_by(stride)
     }
@@ -112,7 +116,8 @@ impl<'a> IntoIterator for &'a mut Buffer {
 
 impl fmt::Display for Buffer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let out = self.original
+        let out = self
+            .original
             .chars()
             .scan(0, |index, c| {
                 if let Some(entry) = self.data.get(*index) {
@@ -165,7 +170,9 @@ mod tests {
     fn test_stats() {
         let buf = Buffer::from("Rust is the best programming language");
 
-        let expected = [3, 1, 0, 0, 3, 0, 4, 1, 2, 0, 0, 1, 2, 2, 1, 1, 0, 3, 3, 3, 2, 0, 0, 0, 0, 0];
+        let expected = [
+            3, 1, 0, 0, 3, 0, 4, 1, 2, 0, 0, 1, 2, 2, 1, 1, 0, 3, 3, 3, 2, 0, 0, 0, 0, 0,
+        ];
         assert_eq!(expected, buf.letter_frequencies());
     }
 }
