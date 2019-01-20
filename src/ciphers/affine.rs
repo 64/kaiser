@@ -21,24 +21,24 @@ impl Affine {
 impl Encrypt for Affine {
     type Error = SimpleError;
 
-    fn encrypt(&self, buf: &mut Buffer) -> Result<(), Self::Error> {
-        for x in buf {
+    fn encrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+        for x in &mut buf {
             *x = (*x * self.a) + self.b;
         }
 
-        Ok(())
+        Ok(buf)
     }
 }
 
 impl Decrypt for Affine {
     type Error = SimpleError;
 
-    fn decrypt(&self, buf: &mut Buffer) -> Result<(), Self::Error> {
-        for x in buf {
+    fn decrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+        for x in &mut buf {
             *x = (*x - self.b) * self.mmi_a;
         }
 
-        Ok(())
+        Ok(buf)
     }
 }
 
@@ -48,14 +48,14 @@ mod tests {
 
     #[test]
     fn test_encrypt_decrypt() {
-        let mut buf = Buffer::from("Hello world!");
+        let buf = Buffer::from("Hello world!");
 
         let affine = Affine::new(3, 5);
 
-        affine.encrypt(&mut buf).unwrap();
+        let buf = affine.encrypt(buf).unwrap();
         assert_eq!("Armmv tvemo!", buf.to_string());
 
-        affine.decrypt(&mut buf).unwrap();
+        let buf = affine.decrypt(buf).unwrap();
         assert_eq!("Hello world!", buf.to_string());
     }
 }

@@ -15,24 +15,24 @@ impl Caesar {
 impl Encrypt for Caesar {
     type Error = SimpleError;
 
-    fn encrypt(&self, buf: &mut Buffer) -> Result<(), Self::Error> {
-        for b in buf {
+    fn encrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+        for b in &mut buf {
             *b += self.shift;
         }
 
-        Ok(())
+        Ok(buf)
     }
 }
 
 impl Decrypt for Caesar {
     type Error = SimpleError;
 
-    fn decrypt(&self, buf: &mut Buffer) -> Result<(), Self::Error> {
-        for b in buf {
+    fn decrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+        for b in &mut buf {
             *b -= self.shift;
         }
 
-        Ok(())
+        Ok(buf)
     }
 }
 
@@ -43,12 +43,12 @@ mod tests {
     #[test]
     fn test_encrypt_decrypt() {
         let caesar = Caesar::new(5);
-        let mut buf = Buffer::from("Hello world!");
+        let buf = Buffer::from("Hello world!");
 
-        caesar.encrypt(&mut buf).unwrap();
+        let buf = caesar.encrypt(buf).unwrap();
         assert_eq!("Mjqqt btwqi!", buf.to_string());
 
-        caesar.decrypt(&mut buf).unwrap();
+        let buf = caesar.decrypt(buf).unwrap();
         assert_eq!("Hello world!", buf.to_string());
     }
 }

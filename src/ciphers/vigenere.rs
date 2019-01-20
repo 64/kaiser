@@ -1,7 +1,7 @@
-use smallvec::SmallVec;
-use simple_error::SimpleError;
+use super::{Decrypt, Encrypt};
 use crate::Buffer;
-use super::{Encrypt, Decrypt};
+use simple_error::SimpleError;
+use smallvec::SmallVec;
 
 pub struct Vigenere {
     key: SmallVec<[u8; 32]>,
@@ -16,9 +16,7 @@ impl Vigenere {
             .map(|c| (c.to_ascii_uppercase() as u8) - b'A')
             .collect::<SmallVec<[u8; 32]>>();
 
-        Self {
-            key: sv,
-        }
+        Self { key: sv }
     }
 
     pub unsafe fn new_unchecked(key: &[u8]) -> Self {
@@ -31,28 +29,28 @@ impl Vigenere {
 impl Encrypt for Vigenere {
     type Error = SimpleError;
 
-    fn encrypt(&self, buf: &mut Buffer) -> Result<(), Self::Error> {
+    fn encrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
         let keylen = self.key.len();
 
-        for (i, b) in buf.into_iter().enumerate() {
+        for (i, b) in (&mut buf).into_iter().enumerate() {
             *b += self.key[i % keylen];
         }
 
-        Ok(())
+        Ok(buf)
     }
 }
 
 impl Decrypt for Vigenere {
     type Error = SimpleError;
 
-    fn decrypt(&self, buf: &mut Buffer) -> Result<(), Self::Error> {
+    fn decrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
         let keylen = self.key.len();
 
-        for (i, b) in buf.into_iter().enumerate() {
+        for (i, b) in (&mut buf).into_iter().enumerate() {
             *b -= self.key[i % keylen];
         }
 
-        Ok(())
+        Ok(buf)
     }
 }
 
@@ -63,12 +61,12 @@ mod tests {
     #[test]
     fn test_encrypt_decrypt() {
         let vigenere = Vigenere::new("KEY");
-        let mut buf = Buffer::from("Hello world!");
+        let buf = Buffer::from("Hello world!");
 
-        vigenere.encrypt(&mut buf).unwrap();
+        let buf = vigenere.encrypt(buf).unwrap();
         assert_eq!("Rijvs uyvjn!", buf.to_string());
 
-        vigenere.decrypt(&mut buf).unwrap();
+        let buf = vigenere.decrypt(buf).unwrap();
         assert_eq!("Hello world!", buf.to_string());
     }
 }

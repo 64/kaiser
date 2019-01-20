@@ -1,6 +1,6 @@
 use crate::{Buffer, Char};
-use lazy_static::lazy_static;
 use itertools::Itertools;
+use lazy_static::lazy_static;
 use std::fs::File;
 use std::io::Read;
 
@@ -10,8 +10,10 @@ lazy_static! {
         let len = 26 * 26 * 26 * 26 * 4;
         let mut buf = Vec::with_capacity(len);
 
-        let mut file = File::open("data/quadgram_scores.raw").expect("unable to locate quadgram scores file");
-        file.read_to_end(&mut buf).expect("error reading from quadgram file");
+        let mut file =
+            File::open("data/quadgram_scores.raw").expect("unable to locate quadgram scores file");
+        file.read_to_end(&mut buf)
+            .expect("error reading from quadgram file");
         buf.shrink_to_fit();
         debug_assert_eq!(buf.len(), len);
 
@@ -65,10 +67,10 @@ pub fn quadgram_score(buf: &Buffer) -> f64 {
     let mut score = 0.0_f64;
 
     for (c1, c2, c3, c4) in buf.into_iter().tuple_windows() {
-        let hash = (u8::from(*c1) as usize * 26_usize.pow(3)) +
-                   (u8::from(*c2) as usize * 26_usize.pow(2)) +
-                   (u8::from(*c3) as usize * 26_usize.pow(1)) +
-                   (u8::from(*c4) as usize * 26_usize.pow(0));
+        let hash = (u8::from(*c1) as usize * 26_usize.pow(3))
+            + (u8::from(*c2) as usize * 26_usize.pow(2))
+            + (u8::from(*c3) as usize * 26_usize.pow(1))
+            + (u8::from(*c4) as usize * 26_usize.pow(0));
         score += QUADGRAMS[hash] as f64; // TODO: Remove bounds checks
     }
 

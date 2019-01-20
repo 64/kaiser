@@ -1,27 +1,27 @@
-use crate::{Buffer, stats};
+use crate::{stats, Buffer};
 
-pub enum Heuristic {
+pub enum ScoreMethod {
     ChiSquared,
     IOC,
     Quadgrams,
 }
 
-// HeuristicScore: greater is better, lower is worse
+// ScoreScore: greater is better, lower is worse
 // e.g: a > b implies a has better score than b
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
-pub struct HeuristicScore(f64);
+pub struct Score(f64);
 
-pub const MAX_SCORE: HeuristicScore = HeuristicScore(std::f64::INFINITY);
-pub const MIN_SCORE: HeuristicScore = HeuristicScore(std::f64::NEG_INFINITY);
+pub const MAX_SCORE: Score = Score(std::f64::INFINITY);
+pub const MIN_SCORE: Score = Score(std::f64::NEG_INFINITY);
 
-pub fn score(buf: &Buffer, heur: Heuristic) -> HeuristicScore {
+pub fn score(buf: &Buffer, heur: ScoreMethod) -> Score {
     match heur {
-        Heuristic::ChiSquared => HeuristicScore(-stats::chi_squared(buf)), // Chi Squared test -> lower is better
-        Heuristic::IOC => {
+        ScoreMethod::ChiSquared => Score(-stats::chi_squared(buf)), // Chi Squared test -> lower is better
+        ScoreMethod::IOC => {
             // Negative distance between expected english and given text IOC
-            HeuristicScore(-(1.73 - stats::index_of_coincidence(buf)).abs())
+            Score(-(1.73 - stats::index_of_coincidence(buf)).abs())
         }
-        Heuristic::Quadgrams => HeuristicScore(stats::quadgram_score(buf)),
+        ScoreMethod::Quadgrams => Score(stats::quadgram_score(buf)),
     }
 }
 
@@ -68,13 +68,13 @@ mod tests {
             .into();
 
         // Check that our mins and max are in order
-        assert!(gibberish.score(Heuristic::IOC) > MIN_SCORE);
-        assert!(english.score(Heuristic::IOC) < MAX_SCORE);
+        assert!(gibberish.score(ScoreMethod::IOC) > MIN_SCORE);
+        assert!(english.score(ScoreMethod::IOC) < MAX_SCORE);
         assert!(MIN_SCORE < MAX_SCORE);
 
         // Check that our heuristics are giving sane results
-        assert!(gibberish.score(Heuristic::IOC) < english.score(Heuristic::IOC));
-        assert!(gibberish.score(Heuristic::ChiSquared) < english.score(Heuristic::ChiSquared));
-        assert!(gibberish.score(Heuristic::Quadgrams) < english.score(Heuristic::Quadgrams));
+        assert!(gibberish.score(ScoreMethod::IOC) < english.score(ScoreMethod::IOC));
+        assert!(gibberish.score(ScoreMethod::ChiSquared) < english.score(ScoreMethod::ChiSquared));
+        assert!(gibberish.score(ScoreMethod::Quadgrams) < english.score(ScoreMethod::Quadgrams));
     }
 }
