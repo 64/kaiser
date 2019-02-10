@@ -1,5 +1,5 @@
-use super::{Decrypt, Encrypt};
-use crate::Buffer;
+use super::{Decrypt, Encrypt, PartialEncrypt, PartialDecrypt};
+use crate::{Buffer, PartialBuffer};
 use simple_error::SimpleError;
 
 pub struct Caesar {
@@ -12,10 +12,8 @@ impl Caesar {
     }
 }
 
-impl Encrypt for Caesar {
-    type Error = SimpleError;
-
-    fn encrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+impl PartialEncrypt for Caesar {
+    fn encrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for b in &mut buf {
             *b += self.shift;
         }
@@ -24,10 +22,8 @@ impl Encrypt for Caesar {
     }
 }
 
-impl Decrypt for Caesar {
-    type Error = SimpleError;
-
-    fn decrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+impl PartialDecrypt for Caesar {
+    fn decrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for b in &mut buf {
             *b -= self.shift;
         }
@@ -35,6 +31,8 @@ impl Decrypt for Caesar {
         Ok(buf)
     }
 }
+
+derive_encrypt_decrypt!(Caesar, SimpleError);
 
 #[cfg(test)]
 mod tests {

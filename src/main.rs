@@ -90,7 +90,7 @@ fn main() {
             println!("{}", kaiser::stats::quadgram_score(&input()));
         }
         ("freqs", Some(_)) => {
-            for (i, freq) in input().letter_frequencies().iter().enumerate() {
+            for (i, freq) in kaiser::stats::letter_frequencies(&input()).iter().enumerate() {
                 println!("{}: {}", (b'A' + i as u8) as char, freq);
             }
         }

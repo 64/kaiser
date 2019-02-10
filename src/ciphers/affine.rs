@@ -1,5 +1,5 @@
-use super::{Decrypt, Encrypt};
-use crate::{Buffer, Char};
+use super::{Decrypt, Encrypt, PartialEncrypt, PartialDecrypt};
+use crate::{Buffer, PartialBuffer, Char};
 use simple_error::SimpleError;
 
 pub struct Affine {
@@ -18,10 +18,8 @@ impl Affine {
     }
 }
 
-impl Encrypt for Affine {
-    type Error = SimpleError;
-
-    fn encrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+impl PartialEncrypt for Affine {
+    fn encrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for x in &mut buf {
             *x = (*x * self.a) + self.b;
         }
@@ -30,10 +28,8 @@ impl Encrypt for Affine {
     }
 }
 
-impl Decrypt for Affine {
-    type Error = SimpleError;
-
-    fn decrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+impl PartialDecrypt for Affine {
+    fn decrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for x in &mut buf {
             *x = (*x - self.b) * self.mmi_a;
         }
@@ -41,6 +37,8 @@ impl Decrypt for Affine {
         Ok(buf)
     }
 }
+
+derive_encrypt_decrypt!(Affine, SimpleError);
 
 #[cfg(test)]
 mod tests {

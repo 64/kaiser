@@ -1,5 +1,5 @@
-use super::{Decrypt, Encrypt};
-use crate::Buffer;
+use super::{Decrypt, Encrypt, PartialDecrypt, PartialEncrypt};
+use crate::{Buffer, PartialBuffer};
 use simple_error::SimpleError;
 use smallvec::SmallVec;
 
@@ -26,10 +26,8 @@ impl Vigenere {
     }
 }
 
-impl Encrypt for Vigenere {
-    type Error = SimpleError;
-
-    fn encrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+impl PartialEncrypt for Vigenere {
+    fn encrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         let keylen = self.key.len();
 
         for (i, b) in (&mut buf).into_iter().enumerate() {
@@ -40,10 +38,8 @@ impl Encrypt for Vigenere {
     }
 }
 
-impl Decrypt for Vigenere {
-    type Error = SimpleError;
-
-    fn decrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+impl PartialDecrypt for Vigenere {
+    fn decrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         let keylen = self.key.len();
 
         for (i, b) in (&mut buf).into_iter().enumerate() {
@@ -53,6 +49,8 @@ impl Decrypt for Vigenere {
         Ok(buf)
     }
 }
+
+derive_encrypt_decrypt!(Vigenere, SimpleError);
 
 #[cfg(test)]
 mod tests {

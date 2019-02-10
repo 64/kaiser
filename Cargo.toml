@@ -7,7 +7,6 @@ description = "Classical cipher cryptanalysis tool"
 repository = "https://github.com/64/kaiser"
 readme = "README.md"
 license = "GPL-3.0-only"
-include = ["src/**/*", "Cargo.toml", "data/quadgram_scores.raw"]
 
 [dependencies]
 clap = "2.32.0"
