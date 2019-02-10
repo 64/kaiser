@@ -1,4 +1,4 @@
-use super::{Decrypt, Encrypt, PartialEncrypt, PartialDecrypt};
+use super::{Decrypt, Encrypt, PartialDecrypt, PartialEncrypt};
 use crate::{Buffer, PartialBuffer};
 use simple_error::SimpleError;
 

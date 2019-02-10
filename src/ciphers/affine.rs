@@ -1,5 +1,5 @@
-use super::{Decrypt, Encrypt, PartialEncrypt, PartialDecrypt};
-use crate::{Buffer, PartialBuffer, Char};
+use super::{Decrypt, Encrypt, PartialDecrypt, PartialEncrypt};
+use crate::{Buffer, Char, PartialBuffer};
 use simple_error::SimpleError;
 
 pub struct Affine {

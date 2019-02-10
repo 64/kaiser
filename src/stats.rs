@@ -1,4 +1,4 @@
-use crate::{Buffer, CharStream, Char};
+use crate::{Buffer, Char, CharStream};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 
@@ -6,9 +6,7 @@ lazy_static! {
     static ref QUADGRAMS: &'static [f32] = {
         let buf = include_bytes!("../data/quadgram_scores.raw");
 
-        unsafe {
-            std::slice::from_raw_parts(buf.as_ptr() as *const f32, 26 * 26 * 26 * 26)
-        }
+        unsafe { std::slice::from_raw_parts(buf.as_ptr() as *const f32, 26 * 26 * 26 * 26) }
     };
 }
 

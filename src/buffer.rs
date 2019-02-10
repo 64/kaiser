@@ -26,17 +26,17 @@ pub trait IntoBorrowingIterator<'a> {
 }
 
 impl<'a, T: 'a> IntoBorrowingIterator<'a> for T
-    where
-        for<'b> &'b T: IntoIterator<Item = &'b Char>,
-        for<'b> &'b mut T: IntoIterator<Item = &'b mut Char>,
+where
+    for<'b> &'b T: IntoIterator<Item = &'b Char>,
+    for<'b> &'b mut T: IntoIterator<Item = &'b mut Char>,
 {
     type IntoIter = <&'a T as IntoIterator>::IntoIter;
     type IntoIterMut = <&'a mut T as IntoIterator>::IntoIter;
-    
+
     fn iter(&'a self) -> Self::IntoIter {
         self.into_iter()
     }
-    
+
     fn iter_mut(&'a mut self) -> Self::IntoIterMut {
         self.into_iter()
     }
@@ -51,8 +51,7 @@ pub trait CharStream<'a>: IntoBorrowingIterator<'a> {
         let mut char_stream = self.iter();
         let mut next_char = char_stream.next();
 
-        self
-            .original()
+        self.original()
             .chars()
             .map(|c| {
                 if let Some(entry) = next_char {
@@ -78,9 +77,7 @@ impl<'a> IntoIterator for &'a Buffer {
     type IntoIter = slice::Iter<'a, Char>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.data
-            .as_slice()
-            .iter()
+        self.data.as_slice().iter()
     }
 }
 
@@ -89,9 +86,7 @@ impl<'a> IntoIterator for &'a mut Buffer {
     type IntoIter = slice::IterMut<'a, Char>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.data
-            .as_mut_slice()
-            .iter_mut()
+        self.data.as_mut_slice().iter_mut()
     }
 }
 
@@ -123,10 +118,7 @@ impl<'a> IntoIterator for &'a mut PartialBuffer {
 
 impl Buffer {
     pub fn new(data: Vec<Char>, original: Arc<String>) -> Self {
-        Self {
-            data,
-            original,
-        }
+        Self { data, original }
     }
 
     pub fn len(&self) -> usize {
@@ -137,7 +129,7 @@ impl Buffer {
         PartialBuffer {
             buf: self,
             offset,
-            stride
+            stride,
         }
     }
 
@@ -197,7 +189,7 @@ impl CharStream<'_> for PartialBuffer {
         let stride = self.stride.get();
 
         // Take ceiling of integer division: (len - offset) / stride
-        (self.buf.len() + stride - self.offset - 1) / stride 
+        (self.buf.len() + stride - self.offset - 1) / stride
     }
 }
 

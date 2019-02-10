@@ -17,7 +17,7 @@ macro_rules! derive_encrypt_decrypt {
                 self.decrypt_partial(buf.into()).map(|b| b.into())
             }
         }
-    }
+    };
 }
 
 mod caesar;
