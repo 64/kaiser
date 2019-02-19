@@ -1,6 +1,5 @@
 use crate::{stats, Buffer};
-use float_ord::FloatOrd;
-use std::fmt;
+use ordered_float::OrderedFloat;
 
 #[derive(Debug, Clone)]
 pub enum ScoreMethod {
@@ -11,26 +10,22 @@ pub enum ScoreMethod {
 
 // Score: greater is better, lower is worse
 // e.g: a > b implies a has better score than b
-#[derive(Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
-pub struct Score(FloatOrd<f64>);
+#[derive(Copy, Debug, Clone, PartialEq, PartialOrd, Eq, Ord)]
+pub struct Score(OrderedFloat<f64>);
 
-pub const MAX_SCORE: Score = Score(FloatOrd(std::f64::INFINITY));
-pub const MIN_SCORE: Score = Score(FloatOrd(std::f64::NEG_INFINITY));
-
-impl fmt::Display for Score {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0 .0) // uhh
-    }
-}
+pub const MAX_SCORE: Score = Score(OrderedFloat(std::f64::INFINITY));
+pub const MIN_SCORE: Score = Score(OrderedFloat(std::f64::NEG_INFINITY));
 
 pub fn score(buf: &Buffer, heur: ScoreMethod) -> Score {
     match heur {
-        ScoreMethod::ChiSquared => Score(FloatOrd(-stats::chi_squared(buf))), // Chi Squared test -> lower is better
+        ScoreMethod::ChiSquared => Score(OrderedFloat(-stats::chi_squared(buf))), // Chi Squared test -> lower is better
         ScoreMethod::IOC => {
             // Negative distance between expected english and given text IOC
-            Score(FloatOrd(-(1.73 - stats::index_of_coincidence(buf)).abs()))
+            Score(OrderedFloat(
+                -(1.73 - stats::index_of_coincidence(buf)).abs(),
+            ))
         }
-        ScoreMethod::Quadgrams => Score(FloatOrd(stats::quadgram_score(buf))),
+        ScoreMethod::Quadgrams => Score(OrderedFloat(stats::quadgram_score(buf))),
     }
 }
 

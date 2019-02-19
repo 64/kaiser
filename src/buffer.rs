@@ -146,9 +146,7 @@ impl Buffer {
 
 impl std::cmp::PartialEq for Buffer {
     fn eq(&self, other: &Buffer) -> bool {
-        self.iter()
-            .zip(other.iter())
-            .all(|(c1, c2)| c1 == c2)
+        self.iter().zip(other.iter()).all(|(c1, c2)| c1 == c2)
     }
 }
 

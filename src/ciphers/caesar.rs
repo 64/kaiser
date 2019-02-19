@@ -1,6 +1,6 @@
 use super::{Decrypt, Encrypt, PartialDecrypt, PartialEncrypt};
-use crate::{Buffer, PartialBuffer, Char};
 use crate::metaheuristic::HeuristicTarget;
+use crate::{Buffer, Char, PartialBuffer};
 use rand::Rng;
 use simple_error::SimpleError;
 
@@ -40,8 +40,12 @@ derive_encrypt_decrypt!(Caesar, SimpleError);
 impl HeuristicTarget for Caesar {
     type KeyParam = ();
 
-    fn rand_key<R: Rng + ?Sized>(_param: Self::KeyParam, _rng: &mut R) -> Self { unimplemented!() }
-    fn tweak_key<R: Rng + ?Sized>(&mut self, _param: Self::KeyParam, _rng: &mut R) { unimplemented!() }
+    fn rand_key<R: Rng + ?Sized>(_param: Self::KeyParam, _rng: &mut R) -> Self {
+        unimplemented!()
+    }
+    fn tweak_key<R: Rng + ?Sized>(&mut self, _param: Self::KeyParam, _rng: &mut R) {
+        unimplemented!()
+    }
 
     // Used for brute force (linear search) - pass 1st param None to get 1st key
     // TODO: Can we use iterators somehow?
