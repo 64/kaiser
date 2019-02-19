@@ -1,4 +1,6 @@
+use simple_error::SimpleError;
 use std::num::NonZeroUsize;
+use std::str::FromStr;
 use std::sync::Arc;
 use std::{fmt, iter, slice};
 
@@ -47,7 +49,7 @@ pub trait CharStream<'a>: IntoBorrowingIterator<'a> {
 
     fn len(&'a self) -> usize;
 
-    fn collect(&'a self) -> String {
+    fn collect_original(&'a self) -> String {
         let mut char_stream = self.iter();
         let mut next_char = char_stream.next();
 
@@ -142,19 +144,39 @@ impl Buffer {
     }
 }
 
-impl From<&str> for Buffer {
-    fn from(data: &str) -> Self {
-        assert!(data.is_ascii());
+impl std::cmp::PartialEq for Buffer {
+    fn eq(&self, other: &Buffer) -> bool {
+        self.iter()
+            .zip(other.iter())
+            .all(|(c1, c2)| c1 == c2)
+    }
+}
 
+impl FromStr for Buffer {
+    type Err = SimpleError;
+
+    fn from_str(data: &str) -> Result<Self, Self::Err> {
         let original = Arc::new(data.to_owned());
 
-        let bytes: Vec<Char> = original
+        let bytes: Result<Vec<Char>, _> = original
             .chars()
-            .filter(|c| c.is_alphabetic() && c.is_ascii())
-            .map(Char::from)
+            .filter(|c| c.is_alphabetic())
+            .map(|c| {
+                if !c.is_ascii() {
+                    Err(SimpleError::new("string contains non-ascii characters"))
+                } else {
+                    Ok(Char::from(c))
+                }
+            })
             .collect();
 
-        Buffer::new(bytes, original)
+        bytes.map(|b| Buffer::new(b, original))
+    }
+}
+
+impl From<&str> for Buffer {
+    fn from(data: &str) -> Self {
+        Buffer::from_str(data).unwrap()
     }
 }
 
@@ -205,13 +227,13 @@ impl CharStream<'_> for Buffer {
 
 impl fmt::Display for PartialBuffer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.collect(), f)
+        fmt::Display::fmt(&self.collect_original(), f)
     }
 }
 
 impl fmt::Display for Buffer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.collect(), f)
+        fmt::Display::fmt(&self.collect_original(), f)
     }
 }
 
@@ -226,18 +248,16 @@ mod tests {
         assert_eq!(s, buf.to_string());
     }
 
-    /*#[test]
+    #[test]
     fn test_offset_stride() {
-        let mut buffer = Buffer::from("ABCDEFGHIJ");
-        buffer.set_stride(2);
-        buffer.set_offset(3);
+        let buffer = Buffer::from("ABCDEFGHIJ").partial(3, NonZeroUsize::new(2).unwrap());
 
         let expected = buffer
-            .into_iter()
+            .iter()
             .map(|&c| -> char { c.into() })
             .collect::<String>();
 
         assert_eq!("DFHJ", expected);
         assert_eq!(4, buffer.len());
-    }*/
+    }
 }
