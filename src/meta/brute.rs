@@ -12,7 +12,6 @@ impl Metaheuristic for BruteForce {
         score_method: ScoreMethod,
         num_results: usize,
     ) -> Result<CrackResults<T>, <T as Decrypt>::Error> {
-        assert!(num_results != 0);
 
         let mut cur_key = None;
         let mut results = CrackResults::new(num_results);

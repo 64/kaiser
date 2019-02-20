@@ -6,7 +6,7 @@ use std::{fmt, iter, slice};
 
 use crate::{score, Char};
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Buffer {
     data: Vec<Char>,
     original: Arc<String>,
@@ -146,7 +146,7 @@ impl Buffer {
 
 impl std::cmp::PartialEq for Buffer {
     fn eq(&self, other: &Buffer) -> bool {
-        self.iter().zip(other.iter()).all(|(c1, c2)| c1 == c2)
+        self.iter().zip(other.iter()).all(|(c1, c2)| c1 == c2) // Is this efficient?
     }
 }
 
@@ -234,6 +234,16 @@ impl fmt::Display for Buffer {
         fmt::Display::fmt(&self.collect_original(), f)
     }
 }
+
+impl fmt::Debug for Buffer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Buffer")
+            .field("data", &self.collect_original())
+            .field("original", &self.original)
+            .finish()
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
