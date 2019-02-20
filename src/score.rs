@@ -1,7 +1,7 @@
 use crate::{stats, Buffer};
 use ordered_float::OrderedFloat;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum ScoreMethod {
     ChiSquared,
     IOC,
