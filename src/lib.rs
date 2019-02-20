@@ -1,7 +1,7 @@
 pub mod buffer;
 pub mod char;
 pub mod ciphers;
-pub mod metaheuristic;
+pub mod meta;
 pub mod score;
 pub mod stats;
 

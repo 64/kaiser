@@ -1,5 +1,5 @@
 use super::{Decrypt, Encrypt, PartialDecrypt, PartialEncrypt};
-use crate::metaheuristic::HeuristicTarget;
+use crate::meta::HeuristicTarget;
 use crate::{Buffer, Char, PartialBuffer};
 use rand::Rng;
 use simple_error::SimpleError;
@@ -43,12 +43,11 @@ impl HeuristicTarget for Caesar {
     fn rand_key<R: Rng + ?Sized>(_param: Self::KeyParam, _rng: &mut R) -> Self {
         unimplemented!()
     }
+
     fn tweak_key<R: Rng + ?Sized>(&mut self, _param: Self::KeyParam, _rng: &mut R) {
         unimplemented!()
     }
 
-    // Used for brute force (linear search) - pass 1st param None to get 1st key
-    // TODO: Can we use iterators somehow?
     fn next_key(key: Option<Self>, _param: Self::KeyParam) -> Option<Self> {
         match key {
             Some(k) => {
@@ -77,5 +76,18 @@ mod tests {
 
         let buf = caesar.decrypt(buf).unwrap();
         assert_eq!("Hello world!", buf.to_string());
+    }
+
+    #[test]
+    fn test_next_key() {
+        let mut keys = 0;
+        let mut cur_key = None;
+
+        while let Some(key) = Caesar::next_key(cur_key, ()) {
+            cur_key = Some(key);
+            keys += 1;
+        }
+
+        assert_eq!(keys, 26);
     }
 }
