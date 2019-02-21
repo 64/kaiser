@@ -1,19 +1,18 @@
-use crate::meta::{CrackResults, Metaheuristic, HeuristicTarget};
-use crate::score::ScoreMethod;
 use crate::ciphers::Decrypt;
+use crate::meta::{CrackResults, HeuristicTarget, Metaheuristic};
+use crate::score::ScoreMethod;
 use crate::Buffer;
 use rand::thread_rng;
-use std::num::NonZeroUsize;
 
 pub struct HillClimb {
-    stop_after: NonZeroUsize,
+    stop_after: usize,
 }
 
 impl HillClimb {
     pub fn stop_after(stop_after: usize) -> Self {
-        Self {
-            stop_after: NonZeroUsize::new(stop_after).expect("stop_after 0 provided")
-        }
+        assert!(stop_after > 0, "stop_after was zero");
+
+        Self { stop_after }
     }
 }
 
@@ -35,7 +34,7 @@ impl Metaheuristic for HillClimb {
             (key.clone(), results.process_result(buf, key, score_method))
         };
 
-        while iters_since_change < self.stop_after.get() {
+        while iters_since_change < self.stop_after {
             let key = parent.tweak_key(param, &mut rng);
             let buf = key.decrypt(text.clone())?;
             let score = results.process_result(buf, key.clone(), score_method);

@@ -1,8 +1,7 @@
 use crate::ciphers::{Decrypt, Encrypt};
 use crate::score::{Score, ScoreMethod};
-use crate::{score, Buffer};
+use crate::Buffer;
 use rand::Rng;
-use std::num::NonZeroUsize;
 use std::ops::Index;
 
 mod brute;
@@ -29,7 +28,7 @@ pub struct CrackResult<K: HeuristicTarget> {
 
 pub struct CrackResults<K: HeuristicTarget> {
     data: Vec<CrackResult<K>>,
-    results: NonZeroUsize,
+    results: usize,
 }
 
 pub trait Metaheuristic {
@@ -44,9 +43,11 @@ pub trait Metaheuristic {
 
 impl<K: HeuristicTarget> CrackResults<K> {
     pub fn new(num_results: usize) -> Self {
+        assert!(num_results > 0, "num_results was zero");
+
         CrackResults {
             data: Vec::new(),
-            results: NonZeroUsize::new(num_results).expect("num_results 0 provided"),
+            results: num_results,
         }
     }
 
@@ -61,7 +62,7 @@ impl<K: HeuristicTarget> CrackResults<K> {
 
         if score > min_score {
             // Remove the lowest scoring item if we're out of space
-            if self.results.get() == self.data.len() {
+            if self.results == self.data.len() {
                 self.data.pop();
             }
 

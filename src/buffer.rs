@@ -1,5 +1,4 @@
 use simple_error::SimpleError;
-use std::num::NonZeroUsize;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::{fmt, iter, slice};
@@ -16,7 +15,7 @@ pub struct Buffer {
 pub struct PartialBuffer {
     buf: Buffer,
     offset: usize,
-    stride: NonZeroUsize,
+    stride: usize,
 }
 
 pub trait IntoBorrowingIterator<'a> {
@@ -97,11 +96,7 @@ impl<'a> IntoIterator for &'a PartialBuffer {
     type IntoIter = iter::StepBy<iter::Skip<<&'a Buffer as IntoIterator>::IntoIter>>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.buf
-            .data
-            .iter()
-            .skip(self.offset)
-            .step_by(self.stride.get())
+        self.buf.data.iter().skip(self.offset).step_by(self.stride)
     }
 }
 
@@ -114,7 +109,7 @@ impl<'a> IntoIterator for &'a mut PartialBuffer {
             .data
             .iter_mut()
             .skip(self.offset)
-            .step_by(self.stride.get())
+            .step_by(self.stride)
     }
 }
 
@@ -127,7 +122,9 @@ impl Buffer {
         self.data.len()
     }
 
-    pub fn partial(self, offset: usize, stride: NonZeroUsize) -> PartialBuffer {
+    pub fn partial(self, offset: usize, stride: usize) -> PartialBuffer {
+        assert!(stride > 0, "stride is zero");
+
         PartialBuffer {
             buf: self,
             offset,
@@ -189,7 +186,7 @@ impl From<Buffer> for PartialBuffer {
         PartialBuffer {
             buf,
             offset: 0,
-            stride: NonZeroUsize::new(1).unwrap(), // TODO: Check assembly - do we need new_unchecked?
+            stride: 1,
         }
     }
 }
@@ -206,10 +203,8 @@ impl CharStream<'_> for PartialBuffer {
     }
 
     fn len(&self) -> usize {
-        let stride = self.stride.get();
-
         // Take ceiling of integer division: (len - offset) / stride
-        (self.buf.len() + stride - self.offset - 1) / stride
+        (self.buf.len() + self.stride - self.offset - 1) / self.stride
     }
 }
 
@@ -244,7 +239,6 @@ impl fmt::Debug for Buffer {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -258,7 +252,7 @@ mod tests {
 
     #[test]
     fn test_offset_stride() {
-        let buffer = Buffer::from("ABCDEFGHIJ").partial(3, NonZeroUsize::new(2).unwrap());
+        let buffer = Buffer::from("ABCDEFGHIJ").partial(3, 2);
 
         let expected = buffer
             .iter()

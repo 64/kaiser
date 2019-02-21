@@ -41,11 +41,15 @@ impl HeuristicTarget for Caesar {
     type KeyParam = ();
 
     fn rand_key<R: Rng + ?Sized>(_param: Self::KeyParam, rng: &mut R) -> Self {
-        Caesar { shift: rng.gen_range(0, 26) }
+        Caesar {
+            shift: rng.gen_range(0, 26),
+        }
     }
-    
+
     fn tweak_key<R: Rng + ?Sized>(&self, _param: Self::KeyParam, rng: &mut R) -> Self {
-        Caesar { shift: rng.gen_range(0, 26) }
+        Caesar {
+            shift: rng.gen_range(0, 26),
+        }
     }
 
     fn next_key(key: Option<Self>, _param: Self::KeyParam) -> Option<Self> {

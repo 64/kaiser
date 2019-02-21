@@ -1,12 +1,14 @@
-use crate::Buffer;
+use super::{CrackResults, HeuristicTarget, Metaheuristic};
 use crate::ciphers::Decrypt;
 use crate::score::ScoreMethod;
-use super::{Metaheuristic, HeuristicTarget, CrackResults};
+use crate::Buffer;
 
 pub struct BruteForce;
 
 impl BruteForce {
-    pub fn new() -> Self { Self }
+    pub fn new() -> Self {
+        Self
+    }
 }
 
 impl Metaheuristic for BruteForce {
@@ -17,7 +19,6 @@ impl Metaheuristic for BruteForce {
         score_method: ScoreMethod,
         num_results: usize,
     ) -> Result<CrackResults<T>, <T as Decrypt>::Error> {
-
         let mut cur_key = None;
         let mut results = CrackResults::new(num_results);
 
@@ -77,13 +78,14 @@ mod tests {
                                   BSHUKVTLZAPJYLWSFPUNZOLYLZVSCLKOPTMVYKPKYHAOLYPUSHZALK"
             .into();
 
-        let results = BruteForce::new().crack_ciphertext::<crate::ciphers::Caesar>(
-            ciphertext,
-            (), // No KeyParam for Caesar ciphers
-            ScoreMethod::Quadgrams,
-            10,
-        )
-        .unwrap();
+        let results = BruteForce::new()
+            .crack_ciphertext::<crate::ciphers::Caesar>(
+                ciphertext,
+                (), // No KeyParam for Caesar ciphers
+                ScoreMethod::Quadgrams,
+                10,
+            )
+            .unwrap();
 
         assert_eq!(results[0].buf, plaintext);
     }

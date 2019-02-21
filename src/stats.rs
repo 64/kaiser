@@ -5,6 +5,7 @@ use lazy_static::lazy_static;
 lazy_static! {
     static ref QUADGRAMS: &'static [f32] = {
         let buf = include_bytes!("../data/quadgram_scores.raw");
+        // TODO: Fix potential alignment concern, maybe assert the alignment of buf.as_ptr() ?
 
         unsafe { std::slice::from_raw_parts(buf.as_ptr() as *const f32, 26 * 26 * 26 * 26) }
     };
