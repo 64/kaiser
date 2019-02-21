@@ -5,8 +5,13 @@ use super::{Metaheuristic, HeuristicTarget, CrackResults};
 
 pub struct BruteForce;
 
+impl BruteForce {
+    pub fn new() -> Self { Self }
+}
+
 impl Metaheuristic for BruteForce {
     fn crack_ciphertext<T: HeuristicTarget>(
+        &mut self,
         text: Buffer,
         param: T::KeyParam,
         score_method: ScoreMethod,
@@ -72,7 +77,7 @@ mod tests {
                                   BSHUKVTLZAPJYLWSFPUNZOLYLZVSCLKOPTMVYKPKYHAOLYPUSHZALK"
             .into();
 
-        let results = BruteForce::crack_ciphertext::<crate::ciphers::Caesar>(
+        let results = BruteForce::new().crack_ciphertext::<crate::ciphers::Caesar>(
             ciphertext,
             (), // No KeyParam for Caesar ciphers
             ScoreMethod::Quadgrams,

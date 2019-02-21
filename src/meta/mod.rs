@@ -6,15 +6,16 @@ use std::num::NonZeroUsize;
 use std::ops::Index;
 
 mod brute;
+mod hillclimb;
 
 pub trait HeuristicTarget: Encrypt + Decrypt + Sized + Clone {
     type KeyParam: Copy; // This might be a key length, range of key lengths, matrix size etc. Differs per cipher
 
     // Used for stochastic/non-deterministic searching
     fn rand_key<R: Rng + ?Sized>(param: Self::KeyParam, rng: &mut R) -> Self;
-    fn tweak_key<R: Rng + ?Sized>(&mut self, param: Self::KeyParam, rng: &mut R);
+    fn tweak_key<R: Rng + ?Sized>(&self, param: Self::KeyParam, rng: &mut R) -> Self;
 
-    // Used for brute force (linear search) - pass 1st param None to get 1st key
+    // Used for brute force (linear search) - pass 1st param None to get initial key
     // TODO: Can we use iterators somehow? Better API
     fn next_key(key: Option<Self>, param: Self::KeyParam) -> Option<Self>;
 }
@@ -33,6 +34,7 @@ pub struct CrackResults<K: HeuristicTarget> {
 
 pub trait Metaheuristic {
     fn crack_ciphertext<T: HeuristicTarget>(
+        &mut self,
         text: Buffer,
         param: T::KeyParam,
         score_method: ScoreMethod,
@@ -48,8 +50,8 @@ impl<K: HeuristicTarget> CrackResults<K> {
         }
     }
 
-    pub fn process_result(&mut self, buf: Buffer, key: K, method: ScoreMethod) {
-        let score = score::score(&buf, method);
+    pub fn process_result(&mut self, buf: Buffer, key: K, method: ScoreMethod) -> Score {
+        let score = buf.score(method);
 
         let min_score = self
             .data
@@ -72,6 +74,8 @@ impl<K: HeuristicTarget> CrackResults<K> {
             self.data
                 .insert(insert_pos, CrackResult { buf, key, score });
         }
+
+        score
     }
 }
 
