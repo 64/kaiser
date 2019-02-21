@@ -1,13 +1,13 @@
-use crate::ciphers::{Decrypt, Encrypt};
+use crate::ciphers::Decrypt;
 use crate::score::{Score, ScoreMethod};
 use crate::Buffer;
 use rand::Rng;
 use std::ops::Index;
 
-mod brute;
-mod hillclimb;
+pub mod brute;
+pub mod hillclimb;
 
-pub trait HeuristicTarget: Encrypt + Decrypt + Sized + Clone {
+pub trait HeuristicTarget: Decrypt + Sized + Clone {
     type KeyParam: Copy; // This might be a key length, range of key lengths, matrix size etc. Differs per cipher
 
     // Used for stochastic/non-deterministic searching

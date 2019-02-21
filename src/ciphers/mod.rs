@@ -32,6 +32,9 @@ pub use self::vigenere::Vigenere;
 mod transposition;
 pub use self::transposition::Transposition;
 
+mod substitution;
+pub use self::substitution::Substitution;
+
 pub trait Encrypt {
     type Error: std::error::Error;
 
