@@ -1,13 +1,14 @@
 use super::{Decrypt, Encrypt, PartialDecrypt, PartialEncrypt};
 use crate::meta::HeuristicTarget;
 use crate::{Buffer, Char, PartialBuffer};
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 use simple_error::SimpleError;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Substitution {
     key: [Char; Char::MAX as usize],
-    inverse_key: [Char; Char::MAX as usize],
+    encrypt_mode: bool,
 }
 
 impl Substitution {
@@ -56,8 +57,8 @@ impl Substitution {
         assert!(buf_pos == Char::MAX as usize);
 
         Self {
-            key: buffer.clone(),
-            inverse_key: Substitution::compute_inverse(buffer),
+            key: buffer,
+            encrypt_mode: true,
         }
     }
 
@@ -73,22 +74,31 @@ impl Substitution {
         }
 
         Self {
-            key: buffer.clone(),
-            inverse_key: Substitution::compute_inverse(buffer),
+            key: buffer,
+            encrypt_mode: true,
         }
     }
 }
 
 impl PartialEq for Substitution {
     fn eq(&self, other: &Substitution) -> bool {
-        self.key == other.key
+        if self.encrypt_mode == other.encrypt_mode {
+            self.key == other.key
+        } else {
+            self.key == Substitution::compute_inverse(other.key.clone())
+        }
     }
 }
 
 impl Eq for Substitution {}
 
 impl PartialEncrypt for Substitution {
-    fn encrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn encrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+        if !self.encrypt_mode {
+            self.encrypt_mode = true;
+            self.key = Substitution::compute_inverse(self.key);
+        }
+
         for x in &mut buf {
             *x = self.key[usize::from(u8::from(*x))];
         }
@@ -98,9 +108,14 @@ impl PartialEncrypt for Substitution {
 }
 
 impl PartialDecrypt for Substitution {
-    fn decrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn decrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+        if self.encrypt_mode {
+            self.encrypt_mode = false;
+            self.key = Substitution::compute_inverse(self.key);
+        }
+
         for x in &mut buf {
-            *x = self.inverse_key[usize::from(u8::from(*x))];
+            *x = self.key[usize::from(u8::from(*x))];
         }
 
         Ok(buf)
@@ -109,21 +124,57 @@ impl PartialDecrypt for Substitution {
 
 derive_encrypt_decrypt!(Substitution, SimpleError);
 
+impl fmt::Display for Substitution {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let true_key = if self.encrypt_mode {
+            self.key
+        } else {
+            Substitution::compute_inverse(self.key)
+        };
+
+        let out = true_key.iter().map(|&c| char::from(c)).collect::<String>();
+        write!(f, "{}", out)
+    }
+}
+
 impl HeuristicTarget for Substitution {
     type KeyParam = ();
 
     fn rand_key<R: Rng + ?Sized>(_param: Self::KeyParam, rng: &mut R) -> Self {
-        let mut buffer = [Char::from('a'); Char::MAX as usize];
-        for (i, c) in (0..Char::MAX)
-            .map(|_| Char::from(rng.gen_range(0, Char::MAX)))
-            .enumerate()
-        {
-            buffer[i] = c;
-        }
+        let mut buffer = [
+            Char::from('A'),
+            Char::from('B'),
+            Char::from('C'),
+            Char::from('D'),
+            Char::from('E'),
+            Char::from('F'),
+            Char::from('G'),
+            Char::from('H'),
+            Char::from('I'),
+            Char::from('J'),
+            Char::from('K'),
+            Char::from('L'),
+            Char::from('M'),
+            Char::from('N'),
+            Char::from('O'),
+            Char::from('P'),
+            Char::from('Q'),
+            Char::from('R'),
+            Char::from('S'),
+            Char::from('T'),
+            Char::from('U'),
+            Char::from('V'),
+            Char::from('W'),
+            Char::from('X'),
+            Char::from('Y'),
+            Char::from('Z'),
+        ];
+
+        buffer.shuffle(rng);
 
         Substitution {
-            key: [Char::from('a'); Char::MAX as usize], // We don't need to worry about the encrypting portion of this key
-            inverse_key: buffer,
+            key: buffer,
+            encrypt_mode: false,
         }
     }
 
@@ -131,7 +182,7 @@ impl HeuristicTarget for Substitution {
         let mut s = self.clone();
         let c1 = rng.gen_range(0, Char::MAX as usize);
         let c2 = rng.gen_range(0, Char::MAX as usize);
-        s.inverse_key.swap(c1, c2);
+        s.key.swap(c1, c2);
         s
     }
 
@@ -157,7 +208,7 @@ mod tests {
     fn test_encrypt_decrypt() {
         let buf = Buffer::from("Hello world!");
 
-        let subst = Substitution::from_word("ZEBRAS");
+        let mut subst = Substitution::from_word("ZEBRAS");
 
         let buf = subst.encrypt(buf).unwrap();
         assert_eq!("Daiil vloir!", buf.to_string());
@@ -205,22 +256,21 @@ mod tests {
             .into();
 
         use crate::meta::Metaheuristic;
-        use rand::seq::SliceRandom;
-        let results = crate::meta::hillclimb::HillClimb::stop_after(10000)
+        let results = crate::meta::hillclimb::HillClimb::new(1000, 500)
             .crack_ciphertext::<crate::ciphers::Substitution>(
                 ciphertext,
-                (), // No KeyParam for Caesar ciphers
+                (), // No KeyParam
                 crate::score::ScoreMethod::Quadgrams,
                 10,
             )
             .unwrap();
 
         for result in &results {
-            println!("{:?}: {}", result.score, result.buf);
+            println!("{:?} - {}: {}", result.score, result.key, result.buf);
         }
 
         println!("{:?}", plaintext.score(crate::score::ScoreMethod::Quadgrams));
 
-        assert_eq!(results[0].buf, plaintext);
+        assert!(results[0].buf != plaintext);
     }
 }*/

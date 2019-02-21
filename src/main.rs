@@ -136,33 +136,30 @@ fn main() {
             match matches.value_of("type") {
                 Some("caesar") => {
                     // if user tries to provide a string, default to 0 and don't encrypt.
-                    let caesar =
+                    let mut caesar =
                         kaiser::ciphers::Caesar::new(key.parse::<u8>().unwrap_or_else(|_| {
                             println!(
                                 "Invalid key provided (must be a single integer), defaulting to 0"
                             );
                             0
                         }));
-                    let buf = input();
-                    let buf = caesar.decrypt(buf).unwrap();
+                    let buf = caesar.decrypt(input()).unwrap();
                     print!("{}", buf.to_string());
                 }
                 Some("affine") => {
                     // try to read two u8 separated by "," otherwise default to the values of 1,0 (i.e., don't encrypt at all)
                     let (a, b) = scan_fmt!(key, "{},{}", u8, u8);
-                    let shift = a.unwrap_or_else(| | {println!("Invalid key provided for a (must be a single integer), defaulting to 1"); 1});
-                    let mult = b.unwrap_or_else(| | {println!("Invalid key provided for b (must be a single integer), defaulting to 0"); 0});
-                    let affine = kaiser::ciphers::Affine::new(shift, mult);
-                    let buf = input();
-                    let buf = affine.decrypt(buf).unwrap();
+                    let shift = a.unwrap_or_else(|| {println!("Invalid key provided for a (must be a single integer), defaulting to 1"); 1});
+                    let mult = b.unwrap_or_else(|| {println!("Invalid key provided for b (must be a single integer), defaulting to 0"); 0});
+                    let mut affine = kaiser::ciphers::Affine::new(shift, mult);
+                    let buf = affine.decrypt(input()).unwrap();
                     print!("{}", buf.to_string());
                 }
                 Some("vigenere") => {
                     // TODO: Write some sane error handling if user tries to provide a numeric key (e.g. treat 1,2,3 as "ABC")
                     // At the moment it just panics.
-                    let vigenere = kaiser::ciphers::Vigenere::new(key);
-                    let buf = input();
-                    let buf = vigenere.decrypt(buf).unwrap();
+                    let mut vigenere = kaiser::ciphers::Vigenere::new(key);
+                    let buf = vigenere.decrypt(input()).unwrap();
                     print!("{}", buf.to_string());
                 }
                 Some(_) => println!("Unknown cipher type"),
@@ -180,15 +177,14 @@ fn main() {
             match matches.value_of("type") {
                 Some("caesar") => {
                     // if user tries to provide a string, default to 0 and don't encrypt.
-                    let caesar =
+                    let mut caesar =
                         kaiser::ciphers::Caesar::new(key.parse::<u8>().unwrap_or_else(|_| {
                             println!(
                                 "Invalid key provided (must be a single integer), defaulting to 0"
                             );
                             0
                         }));
-                    let buf = input();
-                    let buf = caesar.encrypt(buf).unwrap();
+                    let buf = caesar.encrypt(input()).unwrap();
                     print!("{}", buf.to_string());
                 }
                 Some("affine") => {
@@ -196,17 +192,15 @@ fn main() {
                     let (a, b) = scan_fmt!(key, "{},{}", u8, u8);
                     let shift = a.unwrap_or_else(| | {println!("Invalid key provided for a (must be a single integer), defaulting to 1"); 1});
                     let mult = b.unwrap_or_else(| | {println!("Invalid key provided for b (must be a single integer), defaulting to 0"); 0});
-                    let affine = kaiser::ciphers::Affine::new(shift, mult);
-                    let buf = input();
-                    let buf = affine.encrypt(buf).unwrap();
+                    let mut affine = kaiser::ciphers::Affine::new(shift, mult);
+                    let buf = affine.encrypt(input()).unwrap();
                     print!("{}", buf.to_string());
                 }
                 Some("vigenere") => {
                     // TODO: Write some sane error handling if user tries to provide a numeric key (e.g. treat 1,2,3 as "ABC")
                     // At the moment it just panics.
-                    let vigenere = kaiser::ciphers::Vigenere::new(key);
-                    let buf = input();
-                    let buf = vigenere.encrypt(buf).unwrap();
+                    let mut vigenere = kaiser::ciphers::Vigenere::new(key);
+                    let buf = vigenere.encrypt(input()).unwrap();
                     print!("{}", buf.to_string());
                 }
                 Some(_) => println!("Unknown cipher type"),

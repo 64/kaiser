@@ -27,7 +27,7 @@ impl Vigenere {
 }
 
 impl PartialEncrypt for Vigenere {
-    fn encrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn encrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         let keylen = self.key.len();
 
         for (i, b) in (&mut buf).into_iter().enumerate() {
@@ -39,7 +39,7 @@ impl PartialEncrypt for Vigenere {
 }
 
 impl PartialDecrypt for Vigenere {
-    fn decrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn decrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         let keylen = self.key.len();
 
         for (i, b) in (&mut buf).into_iter().enumerate() {
@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn test_encrypt_decrypt() {
-        let vigenere = Vigenere::new("KEY");
+        let mut vigenere = Vigenere::new("KEY");
         let buf = Buffer::from("Hello world!");
 
         let buf = vigenere.encrypt(buf).unwrap();

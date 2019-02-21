@@ -16,7 +16,7 @@ impl Caesar {
 }
 
 impl PartialEncrypt for Caesar {
-    fn encrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn encrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for b in &mut buf {
             *b += self.shift;
         }
@@ -26,7 +26,7 @@ impl PartialEncrypt for Caesar {
 }
 
 impl PartialDecrypt for Caesar {
-    fn decrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn decrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for b in &mut buf {
             *b -= self.shift;
         }
@@ -36,6 +36,12 @@ impl PartialDecrypt for Caesar {
 }
 
 derive_encrypt_decrypt!(Caesar, SimpleError);
+
+impl PartialEq for Caesar {
+    fn eq(&self, other: &Caesar) -> bool {
+        self.shift == other.shift
+    }
+}
 
 impl HeuristicTarget for Caesar {
     type KeyParam = ();
@@ -72,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_encrypt_decrypt() {
-        let caesar = Caesar::new(5);
+        let mut caesar = Caesar::new(5);
         let buf = Buffer::from("Hello world!");
 
         let buf = caesar.encrypt(buf).unwrap();

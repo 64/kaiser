@@ -7,7 +7,7 @@ use std::ops::Index;
 pub mod brute;
 pub mod hillclimb;
 
-pub trait HeuristicTarget: Decrypt + Sized + Clone {
+pub trait HeuristicTarget: Decrypt + Sized + Clone + PartialEq {
     type KeyParam: Copy; // This might be a key length, range of key lengths, matrix size etc. Differs per cipher
 
     // Used for stochastic/non-deterministic searching
@@ -68,12 +68,20 @@ impl<K: HeuristicTarget> CrackResults<K> {
 
             // Find insertion point
             let insert_pos = match self.data.binary_search_by(|cr| score.cmp(&cr.score)) {
-                Ok(pos) => pos,
-                Err(pos) => pos,
+                Ok(pos) => {
+                    if self.data[pos].key == key {
+                        None // Don't insert duplicates
+                    } else {
+                        Some(pos)
+                    }
+                }
+                Err(pos) => Some(pos),
             };
 
-            self.data
-                .insert(insert_pos, CrackResult { buf, key, score });
+            if let Some(insert_pos) = insert_pos {
+                self.data
+                    .insert(insert_pos, CrackResult { buf, key, score });
+            }
         }
 
         score

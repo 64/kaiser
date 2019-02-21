@@ -22,7 +22,7 @@ impl Metaheuristic for BruteForce {
         let mut cur_key = None;
         let mut results = CrackResults::new(num_results);
 
-        while let Some(key) = T::next_key(cur_key, param) {
+        while let Some(mut key) = T::next_key(cur_key, param) {
             let buf = key.decrypt(text.clone())?;
 
             // Store it if we need

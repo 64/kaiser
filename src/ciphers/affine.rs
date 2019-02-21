@@ -19,7 +19,7 @@ impl Affine {
 }
 
 impl PartialEncrypt for Affine {
-    fn encrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn encrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for x in &mut buf {
             *x = (*x * self.a) + self.b;
         }
@@ -29,7 +29,7 @@ impl PartialEncrypt for Affine {
 }
 
 impl PartialDecrypt for Affine {
-    fn decrypt_partial(&self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
+    fn decrypt_partial(&mut self, mut buf: PartialBuffer) -> Result<PartialBuffer, Self::Error> {
         for x in &mut buf {
             *x = (*x - self.b) * self.mmi_a;
         }
@@ -46,9 +46,8 @@ mod tests {
 
     #[test]
     fn test_encrypt_decrypt() {
+        let mut affine = Affine::new(3, 5);
         let buf = Buffer::from("Hello world!");
-
-        let affine = Affine::new(3, 5);
 
         let buf = affine.encrypt(buf).unwrap();
         assert_eq!("Armmv tvemo!", buf.to_string());

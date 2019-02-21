@@ -25,7 +25,7 @@ impl Transposition {
 impl Encrypt for Transposition {
     type Error = SimpleError;
 
-    fn encrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+    fn encrypt(&mut self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
         let keylen = self.key.len();
         let mut ciphertext = String::from("");
 
@@ -49,7 +49,7 @@ impl Encrypt for Transposition {
 impl Decrypt for Transposition {
     type Error = SimpleError;
 
-    fn decrypt(&self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
+    fn decrypt(&mut self, mut buf: Buffer) -> Result<Buffer, Self::Error> {
         let keylen = self.key.len();
         let mut plaintext = String::from("");
 
@@ -76,7 +76,7 @@ mod tests {
 
     #[test]
     fn test_encrypt_decrypt() {
-        let transposition = Transposition::new("2,1");
+        let mut transposition = Transposition::new("2,1");
         let buf = Buffer::from("HELLOWORLD");
 
         let buf = transposition.encrypt(buf).unwrap();
